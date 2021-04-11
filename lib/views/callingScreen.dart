@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:sdp_transform/sdp_transform.dart';
 
-class CallingScree extends StatefulWidget {
+class CallingScreen extends StatefulWidget {
   @override
-  _CallingScreeState createState() => _CallingScreeState();
+  _CallingScreenState createState() => _CallingScreenState();
 }
 
 enum FaceMode { FRONT, BACK }
 enum CallStatus { CONNECTED, CALLING }
 
-class _CallingScreeState extends State<CallingScree> {
+class _CallingScreenState extends State<CallingScreen> {
   RTCVideoRenderer _localRenderer = new RTCVideoRenderer();
   RTCVideoRenderer _remoteRenderer = new RTCVideoRenderer();
   MediaStream _localStream;
@@ -27,6 +27,8 @@ class _CallingScreeState extends State<CallingScree> {
   // Here are methods only, widgets are below in file //
   //////////////////////////////////////////////////////
 
+  // INIT RENDERERS
+  // - To initialise renderers and RTC_peer_connection
   Future _initialiseRederers() async {
     await _localRenderer.initialize();
     await _remoteRenderer.initialize();
@@ -39,10 +41,13 @@ class _CallingScreeState extends State<CallingScree> {
     });
   }
 
+  // INIT STREAMS
+  // - To initialise MQTT streams
   Future _initialiseStreams() {
     // TODO : implement MQTT streams
   }
 
+  // CREATE PEER CONNECTION
   Future<RTCPeerConnection> _createPeerConnection() async {
     Map<String, dynamic> configuration = {
       "iceServers": [
@@ -103,6 +108,7 @@ class _CallingScreeState extends State<CallingScree> {
     }
   }
 
+  // GET USER MEDIA
   Future<MediaStream> _getUserMedia(
       {FaceMode facingMode = FaceMode.FRONT}) async {
     String faceing = facingMode == FaceMode.FRONT ? "user" : "environment";
@@ -221,6 +227,7 @@ class _CallingScreeState extends State<CallingScree> {
   // Widgets starts from here //
   //////////////////////////////
 
+  /// ANS BUTTON
   Widget _answerButton() {
     return Align(
       alignment: Alignment.bottomRight,
@@ -242,10 +249,10 @@ class _CallingScreeState extends State<CallingScree> {
                     await _createOffer();
                   }),
       ),
-      // ),
     );
   }
 
+  // DECLINE BUTTON
   Widget _declineButton() {
     return Align(
       alignment: Alignment.bottomLeft,
@@ -267,7 +274,6 @@ class _CallingScreeState extends State<CallingScree> {
                     _callEndingProcess();
                   }),
       ),
-      // ),
     );
   }
 
