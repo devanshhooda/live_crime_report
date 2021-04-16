@@ -43,7 +43,8 @@ class _CallingScreenState extends State<CallingScreen> {
 
   // INIT STREAMS
   // - To initialise MQTT streams
-  Future _initialiseStreams() {
+  _initialiseStreams() {
+    _rtcPeerConnection.addStream(_localStream);
     // TODO : implement MQTT streams
   }
 
@@ -67,9 +68,9 @@ class _CallingScreenState extends State<CallingScreen> {
           await createPeerConnection(configuration, offerConstraints);
 
       print("<<<<<<<<<<<<< creating RTC Connection >>>>>>>>>>>>");
-      // print('1. ${rtcPeerConnection == null}');
+      print('1. ${rtcPeerConnection == null}');
 
-      // print('2. ${rtcPeerConnection == null}');
+      print('2. ${rtcPeerConnection == null}');
 
       rtcPeerConnection.onIceCandidate = (e) {
         print('>>>>>>>>>>>> On ICE Candidate  <<<<<<<<<');
@@ -85,12 +86,12 @@ class _CallingScreenState extends State<CallingScreen> {
         }
       };
 
-      // print('3. ${rtcPeerConnection == null}');
+      print('3. ${rtcPeerConnection == null}');
 
       rtcPeerConnection.onIceConnectionState = (e) {
         print('pcIceConnectionState : $e');
       };
-      // print('4. ${rtcPeerConnection == null}');
+      print('4. ${rtcPeerConnection == null}');
 
       rtcPeerConnection.onAddStream = (stream) {
         print('add stream : ${stream.id}');
@@ -98,7 +99,7 @@ class _CallingScreenState extends State<CallingScreen> {
         _remoteRenderer.srcObject = stream;
         print('remoteRenderer(addStream) : $_remoteRenderer');
       };
-      // print('5. ${rtcPeerConnection == null}');
+      print('5. ${rtcPeerConnection == null}');
 
       return rtcPeerConnection;
     } catch (e) {
@@ -111,10 +112,10 @@ class _CallingScreenState extends State<CallingScreen> {
   // GET USER MEDIA
   Future<MediaStream> _getUserMedia(
       {FaceMode facingMode = FaceMode.FRONT}) async {
-    String faceing = facingMode == FaceMode.FRONT ? "user" : "environment";
+    // String faceing = facingMode == FaceMode.FRONT ? "user" : "environment";
     Map<String, dynamic> mediaConstraints = {
       'audio': true,
-      'video': {'facingMode': faceing}
+      'video': {'facingMode': 'user'}
     };
 
     try {
@@ -277,9 +278,18 @@ class _CallingScreenState extends State<CallingScreen> {
     );
   }
 
+  Widget _localVideoDisplay(double height, double width) {
+    return Container(
+      child: RTCVideoView(_localRenderer),
+      height: height,
+      width: width,
+    );
+  }
+
   @override
   void initState() {
-    _initialiseRederers();
+    _initialiseRederers().then((_) => _initialiseStreams());
+    // _initialiseStreams();
     super.initState();
   }
 
@@ -297,6 +307,14 @@ class _CallingScreenState extends State<CallingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    var deviceSize = MediaQuery.of(context).size;
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: _localRenderer != null
+          ? _localVideoDisplay(deviceSize.height, deviceSize.width)
+          : Center(
+              child: CircularProgressIndicator(),
+            ),
+    );
   }
 }
