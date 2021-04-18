@@ -5,6 +5,10 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:sdp_transform/sdp_transform.dart';
 
 class CallingScreen extends StatefulWidget {
+  bool _callMute;
+  CallingScreen({@required bool callMute}) {
+    this._callMute = callMute;
+  }
   @override
   _CallingScreenState createState() => _CallingScreenState();
 }
@@ -21,7 +25,10 @@ class _CallingScreenState extends State<CallingScreen> {
 
   FaceMode facing = FaceMode.FRONT;
 
-  bool _answerButtonPressed, _declineButtonPressed, _offer = false;
+  bool _answerButtonPressed,
+      _declineButtonPressed,
+      _offer = false,
+      _screenTapped = false;
 
   //////////////////////////////////////////////////////
   // Here are methods only, widgets are below in file //
@@ -112,10 +119,10 @@ class _CallingScreenState extends State<CallingScreen> {
   // GET USER MEDIA
   Future<MediaStream> _getUserMedia(
       {FaceMode facingMode = FaceMode.FRONT}) async {
-    // String faceing = facingMode == FaceMode.FRONT ? "user" : "environment";
+    String faceing = facingMode == FaceMode.FRONT ? "user" : "environment";
     Map<String, dynamic> mediaConstraints = {
-      'audio': true,
-      'video': {'facingMode': 'user'}
+      'audio': widget._callMute,
+      'video': {'facingMode': faceing},
     };
 
     try {
@@ -280,9 +287,83 @@ class _CallingScreenState extends State<CallingScreen> {
 
   Widget _localVideoDisplay(double height, double width) {
     return Container(
-      child: RTCVideoView(_localRenderer),
+      child: GestureDetector(
+        child: RTCVideoView(_localRenderer),
+        onTap: () {
+          setState(() {
+            _screenTapped = !_screenTapped;
+          });
+        },
+      ),
       height: height,
       width: width,
+    );
+  }
+
+  Widget _serviceFloatingButton(int buttonIndex, bool boolVal) {
+    List<IconData> icn = [Icons.switch_camera, Icons.call_end, Icons.mic_off];
+    return Padding(
+      padding: EdgeInsets.all(5),
+      child: FloatingActionButton(
+        child: Icon(icn[buttonIndex]),
+        heroTag: buttonIndex,
+        onPressed: () async {
+          try {
+            switch (buttonIndex) {
+              // Switch camera
+              case 0:
+                {
+                  if (facing == FaceMode.FRONT)
+                    facing = FaceMode.BACK;
+                  else
+                    facing = FaceMode.FRONT;
+                  print("New Facing: $facing");
+                  print(
+                      "Switch camera : ${await _localStream.getVideoTracks()[0].switchCamera()}");
+                }
+                break;
+              // Call end
+              case 1:
+                {
+                  _callEndingProcess();
+                }
+
+                break;
+              // Mute
+              case 2:
+                {
+                  setState(() {
+                    widget._callMute = !widget._callMute;
+                  });
+                  _localStream
+                      .getVideoTracks()[0]
+                      .setMicrophoneMute(widget._callMute);
+                }
+            }
+          } catch (e) {
+            print('Exception for button of index : $buttonIndex');
+          }
+        },
+        backgroundColor: (buttonIndex == 1)
+            ? Colors.red
+            : (boolVal
+                ? (widget._callMute ? Colors.red : Colors.transparent)
+                : Colors.transparent),
+      ),
+    );
+  }
+
+  Widget _floatingButtonsRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        // Switch Camera
+        _serviceFloatingButton(0, false),
+        // Call end
+        _serviceFloatingButton(1, false),
+        // Mute
+        _serviceFloatingButton(2, true)
+      ],
     );
   }
 
@@ -315,6 +396,7 @@ class _CallingScreenState extends State<CallingScreen> {
           : Center(
               child: CircularProgressIndicator(),
             ),
+      floatingActionButton: _screenTapped ? null : _floatingButtonsRow(),
     );
   }
 }

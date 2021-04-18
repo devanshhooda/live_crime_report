@@ -33,17 +33,21 @@ class _HomePageState extends State<HomePage> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomRight),
                 borderRadius: BorderRadius.circular(20)),
-            child: Column(
-              children: [
-                CheckboxListTile(
-                    value: boolVals[idx],
-                    onChanged: (val) {
-                      setState(() {
-                        boolVals[idx] = val;
-                      });
-                    }),
-                Container(child: Text(authoritiesNames[idx]))
-              ],
+            child: GridTile(
+              child: Container(
+                  child: Center(
+                child: Text(
+                  '${authoritiesNames[idx]}',
+                  style: TextStyle(fontSize: 17),
+                ),
+              )),
+              footer: CheckboxListTile(
+                  value: boolVals[idx],
+                  onChanged: (val) {
+                    setState(() {
+                      boolVals[idx] = val;
+                    });
+                  }),
             )),
       ),
       onPressed: () {
@@ -80,8 +84,10 @@ class _HomePageState extends State<HomePage> {
     return FloatingActionButton(
         child: Icon(Icons.videocam_rounded),
         onPressed: () {
-          Navigator.of(context)
-              .push(CupertinoPageRoute(builder: (_) => CallingScreen()));
+          Navigator.of(context).push(CupertinoPageRoute(
+              builder: (_) => CallingScreen(
+                    callMute: false,
+                  )));
         });
   }
 

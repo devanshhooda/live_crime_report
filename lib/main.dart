@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:live_crime_report/views/homePage.dart';
+import 'package:live_crime_report/views/loginScreen.dart';
 
 void main() {
   runApp(CrimeReportApp());
