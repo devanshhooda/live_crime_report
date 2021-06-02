@@ -59,7 +59,7 @@ class _CallingScreenState extends State<CallingScreen> {
   Future<RTCPeerConnection> _createPeerConnection() async {
     Map<String, dynamic> configuration = {
       "iceServers": [
-        {"url": "stun:13.233.40.179"}
+        {"url": "stun.l.google.com:19302"}
       ]
     };
 
