@@ -16,7 +16,6 @@ class AppRepository {
     _googleAuth = new GoogleAuth();
     _firebaseMessaging = FirebaseMessaging.instance;
     _initSharedPreferences();
-    _saveFcmTokenToSP();
   }
 
   _notificationPipeline() {
@@ -33,39 +32,41 @@ class AppRepository {
       return null;
     }
 
-    Map<String, String> body = _userProfile.toJson();
+    // await _saveFcmTokenToSP();
 
-    String _tokenKey = 'fcmToken';
-    String _fcmToken = await this._getStringFromSP(key: _tokenKey);
-    body[_tokenKey] = _fcmToken;
+    // Map<String, String> body = _userProfile.toJson();
 
-    var responseData = await _httPclient.postRequest(
-        body: body, requestUrl: '/userLogin', headers: <String, String>{});
+    // String _tokenKey = 'fcmToken';
+    // String _fcmToken = await this._getStringFromSP(key: _tokenKey);
+    // body[_tokenKey] = _fcmToken;
 
-    print('User LOGIN response (from server) : $responseData');
+    // var responseData = await _httPclient.postRequest(
+    //     body: body, requestUrl: '/userLogin', headers: <String, String>{});
 
-    // for signup
-    if (responseData['status'] == false) {
-      print('.. User LOGIN failed .. trying SIGNUP .. ');
+    // print('User LOGIN response (from server) : $responseData');
 
-      responseData = await this._userSignUp(body: body);
+    // // for signup
+    // if (responseData['status'] == false) {
+    //   print('.. User LOGIN failed .. trying SIGNUP .. ');
 
-      print('User SIGNUP response (from server) : $responseData');
+    //   responseData = await this._userSignUp(body: body);
 
-      if (responseData['status'] == false) {
-        print('.. User SIGNUP is also failed ..');
-        return null;
-      } else {
-        print('.. User SIGNUP SUCCESS ..');
-      }
-    } else {
-      print('.. User SIGNUP LOGIN ..');
-    }
+    //   print('User SIGNUP response (from server) : $responseData');
 
-    _userProfile = UserProfile.fromJSON(jsonMap: responseData);
+    //   if (responseData['status'] == false) {
+    //     print('.. User SIGNUP is also failed ..');
+    //     return null;
+    //   } else {
+    //     print('.. User SIGNUP SUCCESS ..');
+    //   }
+    // } else {
+    //   print('.. User SIGNUP LOGIN ..');
+    // }
 
-    await _saveUserAndGoogleIdToSP(
-        userId: _userProfile.userId, googleId: _userProfile.googleId);
+    // _userProfile = UserProfile.fromJSON(jsonMap: responseData);
+
+    // await _saveUserAndGoogleIdToSP(
+    //     userId: _userProfile.userId, googleId: _userProfile.googleId);
 
     return _userProfile;
   }
@@ -88,8 +89,9 @@ class AppRepository {
     print('userId : $userId');
     print('googleId : $googleId');
 
-    bool uidSaved = await _saveStringToSP(value: userId, key: 'userId');
-    bool gidSaved = await _saveStringToSP(value: googleId, key: 'googleId');
+    bool uidSaved = await this._saveStringToSP(value: userId, key: 'userId');
+    bool gidSaved =
+        await this._saveStringToSP(value: googleId, key: 'googleId');
 
     print('uidSaved? : $uidSaved');
     print('googleId? : $gidSaved');
@@ -98,10 +100,11 @@ class AppRepository {
   Future _saveFcmTokenToSP() async {
     String fcmToken = await _firebaseMessaging.getToken();
 
-    bool savedToSp = await _saveStringToSP(value: fcmToken, key: 'fcmToken');
+    bool savedToSp =
+        await this._saveStringToSP(value: fcmToken, key: 'fcmToken');
 
     if (savedToSp) {
-      print('FCM token saved to SP successfully');
+      print('FCM token saved to SP successfully and fcmToken : $fcmToken');
     } else {
       print('FCM token saving ERROR in SP');
     }
