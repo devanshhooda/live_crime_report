@@ -30,13 +30,11 @@ class UserProfile {
         photoUrl: googleUser.photoURL);
   }
 
-  Map<String, String> toJson() {
-    return {
-      'name': this.fullName,
-      'phoneNumber': this.phoneNumber,
-      'userId': this.userId,
-      'email': this.emailAddress,
-      'googleId': this.googleId
-    };
-  }
+  Map<String, String> get toJson => {
+        'name': this.fullName,
+        'phoneNumber': this.phoneNumber,
+        'userId': this.userId,
+        'email': this.emailAddress,
+        'googleId': this.googleId
+      };
 }

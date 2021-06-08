@@ -12,6 +12,18 @@ class LoginScreen extends StatefulWidget {
 }
 
 class LoginScreenState extends State<LoginScreen> {
+  // logo or title of app comes here
+  Widget _titleWidget() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20),
+      child: Text(
+        'LIVE      CRIME     REPORT',
+        style: TextStyle(
+            fontWeight: FontWeight.bold, fontSize: 30, color: Colors.white),
+      ),
+    );
+  }
+
   Widget _googleLoginButton() {
     return Container(
       height: 100,
@@ -28,7 +40,7 @@ class LoginScreenState extends State<LoginScreen> {
               style: TextStyle(fontSize: 20),
             ),
             onPressed: () async {
-              UserProfile _userProfile = await widget.repository.userLogin();
+              // UserProfile _userProfile = await widget.repository.userLogin();
               Navigator.of(context)
                   .push(CupertinoPageRoute(builder: (_) => HomePage()));
             },
@@ -55,18 +67,7 @@ class LoginScreenState extends State<LoginScreen> {
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Container(
-                child: Text(
-                  'LIVE CRIME REPORT',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 30,
-                      color: Colors.white),
-                ),
-              ),
-              _googleLoginButton()
-            ],
+            children: [_titleWidget(), _googleLoginButton()],
           ),
         ),
       ),
