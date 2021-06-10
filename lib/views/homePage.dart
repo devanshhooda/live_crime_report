@@ -1,8 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:live_crime_report/views/webRTCcallingScreen.dart';
+import 'package:live_crime_report/data/jistiVideoCallService.dart';
+
+import '../models/userProfile.dart';
 
 class HomePage extends StatefulWidget {
+  UserProfile userProfile;
+
+  HomePage({@required this.userProfile});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -21,6 +27,7 @@ class _HomePageState extends State<HomePage> {
     [Colors.red, Colors.yellow],
     [Colors.green, Colors.grey]
   ];
+  JitsiVideoCallService _jitsiVideoCallService;
 // AUTHORITY WIDGET
   Widget _authorityWidget(int idx) {
     return MaterialButton(
@@ -73,6 +80,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _appBar() {
     return AppBar(
+      backgroundColor: Colors.red,
       title: Container(
         child: Text('LIVE CRIME REPORT'),
       ),
@@ -83,12 +91,20 @@ class _HomePageState extends State<HomePage> {
   Widget _floatingCallButton() {
     return FloatingActionButton(
         child: Icon(Icons.videocam_rounded),
-        onPressed: () {
-          Navigator.of(context).push(CupertinoPageRoute(
-              builder: (_) => CallingScreen(
-                    callMute: false,
-                  )));
+        onPressed: () async {
+          await _jitsiVideoCallService.joinMeeting(profile: widget.userProfile);
+          // Navigator.of(context).push(CupertinoPageRoute(
+          //     builder: (_) =>
+          //     CallingScreen(
+          //           callMute: false,
+          //         )));
         });
+  }
+
+  @override
+  void initState() {
+    _jitsiVideoCallService = new JitsiVideoCallService();
+    super.initState();
   }
 
   @override

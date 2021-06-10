@@ -3,32 +3,36 @@ import 'package:flutter/material.dart';
 import 'package:jitsi_meet/jitsi_meet.dart';
 import 'package:jitsi_meet/room_name_constraint.dart';
 import 'package:jitsi_meet/room_name_constraint_type.dart';
-import 'package:live_crime_report/models/userProfile.dart';
+
+import '../models/userProfile.dart';
 
 class JitsiVideoCallService {
   final serverText = TextEditingController();
 
-  joinMeeting(
-      {@required UserProfile sender, @required UserProfile receiver}) async {
+  joinMeeting({UserProfile profile}) async {
     String serverUrl =
         serverText.text?.trim()?.isEmpty ?? "" ? null : serverText.text;
-    final String roomId = sender.userId + "jitsiserver" + receiver.userId;
-
-    print('userName : ${receiver.fullName}');
-    print('sendingId : ${sender.userId}');
-    print('receivingId : ${receiver.userId}');
+    final String roomId = "crime-report-server";
 
     try {
+      Map<FeatureFlagEnum, bool> featureFlag = {
+        FeatureFlagEnum.WELCOME_PAGE_ENABLED: false,
+        FeatureFlagEnum.CALL_INTEGRATION_ENABLED: false,
+        FeatureFlagEnum.CHAT_ENABLED: false,
+        FeatureFlagEnum.RAISE_HAND_ENABLED: false,
+        FeatureFlagEnum.MEETING_NAME_ENABLED: false,
+        FeatureFlagEnum.MEETING_PASSWORD_ENABLED: false,
+      };
+
       var options = JitsiMeetingOptions(room: roomId)
         ..serverURL = serverUrl
-        ..subject = receiver.fullName != null ? '${receiver.fullName}' : 'Admin'
-        ..userDisplayName = sender.userId
+        ..subject = 'Live crime reporting'
+        ..userDisplayName = profile.name
         ..audioOnly = false
         ..audioMuted = false
         ..videoMuted = false
-        ..userEmail = sender.emailAddress
-        ..userAvatarURL = sender.photoUrl
-        ..subject = 'Video call';
+        ..userEmail = profile.phoneNumber
+        ..featureFlags = featureFlag;
 
       // debugPrint("JitsiMeetingOptions: $options");
       await JitsiMeet.joinMeeting(
@@ -83,7 +87,12 @@ class JitsiVideoCallService {
     debugPrint("_onConferenceTerminated broadcasted with message: $message");
   }
 
-  _onError(error) {
+  void _onError(error) {
     debugPrint("_onError broadcasted: $error");
+  }
+
+  void endMeeting() {
+    JitsiMeet.closeMeeting();
+    print('Call ended');
   }
 }

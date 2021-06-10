@@ -1,11 +1,11 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:live_crime_report/data/repository.dart';
+import 'package:live_crime_report/views/homePage.dart';
 import 'package:live_crime_report/views/loginScreen.dart';
+import 'data/repository.dart';
+import 'models/userProfile.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
   runApp(CrimeReportApp());
 }
 
@@ -23,14 +23,25 @@ class _CrimeReportAppState extends State<CrimeReportApp> {
     super.initState();
   }
 
+  _getUser() async {
+    return await repository.getUserFromSP();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: LoginScreen(repository: repository),
+      home: FutureBuilder(
+          future: repository.getStringFromSP(key: 'name'),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              UserProfile _user = _getUser();
+              return HomePage(userProfile: _user);
+            } else {
+              return LoginScreen();
+            }
+          }),
       debugShowCheckedModeBanner: false,
-      theme:
-          ThemeData(primarySwatch: Colors.red, primaryColor: Colors.redAccent),
-      // darkTheme: ThemeData.dark(),
+      theme: ThemeData(primarySwatch: Colors.red, primaryColor: Colors.yellow[800]),
     );
   }
 }
